@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Author: eph
+# Author: eph, Thomas Roder
 
 from timeit import timeit
 from scipy import stats

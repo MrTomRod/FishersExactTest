@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Author: eph
+# Author: eph, Thomas Roder
 
 from numba.pycc import CC
 

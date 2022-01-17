@@ -1,3 +1,16 @@
+## Credit
+
+This is heavily based on the work of [painyeph](https://github.com/painyeph/FishersExactTest).
+
+I basically added numba compilation and easier installation.
+Nevertheless, it makes a big difference speed-wise!
+
+## Installation
+
+```bash
+pip install git+https://github.com/MrTomRod/FishersExactTest
+```
+
 ## Functions
 
 | test type    | p-value                                                | -log( p-value )                                              | -log10( p-value )                                                  |
@@ -25,7 +38,6 @@ Comparison of `scipy.stats.fisher_exact`, `fast_fisher.fast_fisher_python` and `
 |  10000 |  10000 |  10000 |  10000 |  left-tailed |    900 us |    323 us |      26 us |
 |  10000 |  10000 |  10000 |  10000 | right-tailed |    912 us |    329 us |      27 us |
 |  10000 |  10000 |  10000 |  10000 |   two-tailed |    172 us |    679 us |      53 us |
-
 
 ## Precision
 
