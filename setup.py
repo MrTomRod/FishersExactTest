@@ -30,6 +30,6 @@ if __name__ == "__main__":
             'Programming Language :: Python :: 3.10',
         ],
         packages=['fast_fisher'],
-        install_requires=[],
+        install_requires=['numba'],
         ext_modules=[cc.distutils_extension()],
     )

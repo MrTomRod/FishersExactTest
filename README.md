@@ -65,4 +65,8 @@ contingency table              fast pvalue          scipy pvalue
 (100, 1, 10, 1000000000000)    1026.3583095975994   failed to compute
 (100, 1, 10, 10000000000000)   1126.3427388160835   failed to compute
 (100, 1, 10, 100000000000000)  1226.447616894783    failed to compute
+Traceback (most recent call last):
+  File "<stdin>", line 3, in <module>
+  File "/tmp/pip-req-build-k925rs0z/fast_fisher/fast_fisher_numba.py", line 244, in mlnTest2t
+OverflowError: the grand total of contingency table is too large
 ```
