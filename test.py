@@ -5,28 +5,32 @@
 import unittest
 from random import random
 
-import fisher
+from fast_fisher import fast_fisher
+from fast_fisher import fast_fisher_numba
 
 
 class TestFisher(unittest.TestCase):
-
     def test_with_scipy(self, samples=100):
         from scipy.stats import fisher_exact
         for _ in range(samples):
-            a = int(10**(random()*4) - 1)
-            b = int(10**(random()*4) - 1)
-            c = int(10**(random()*4) - 1)
-            d = int(10**(random()*4) - 1)
-            lp, rp, tp = fisher.test1(a, b, c, d)
-            self.assertLessEqual(lp, 1)
-            self.assertLessEqual(rp, 1)
-            self.assertLessEqual(tp, 1)
-            self.assertAlmostEqual(lp, fisher_exact([[a, b], [c, d]], 'less')[1])
-            self.assertAlmostEqual(rp, fisher_exact([[a, b], [c, d]], 'greater')[1])
-            self.assertAlmostEqual(tp, fisher_exact([[a, b], [c, d]], 'two-sided')[1])
-            self.assertAlmostEqual(lp, fisher.test1l(a, b, c, d))
-            self.assertAlmostEqual(rp, fisher.test1r(a, b, c, d))
-            self.assertAlmostEqual(tp, fisher.test1t(a, b, c, d))
+            a, b, c, d = [int(10 ** (random() * 4) - 1) for _ in range(4)]
+
+            scipy_l = fisher_exact([[a, b], [c, d]], 'less')[1]
+            scipy_r = fisher_exact([[a, b], [c, d]], 'greater')[1]
+            scipy_t = fisher_exact([[a, b], [c, d]], 'two-sided')[1]
+
+            fast_l, fast_r, fast_t = fast_fisher.test1(a, b, c, d)
+            numba_l, numba_r, numba_t = fast_fisher_numba.test1(a, b, c, d)
+
+            for pval in (fast_l, fast_r, fast_t, numba_l, numba_r, numba_t):
+                self.assertLessEqual(pval, 1)
+
+            for test1 in (fast_fisher.test1, fast_fisher_numba.test1):
+                l, r, t = test1(a, b, c, d)
+                self.assertAlmostEqual(l, scipy_l)
+                self.assertAlmostEqual(r, scipy_r)
+                self.assertAlmostEqual(t, scipy_t)
+
 
 if __name__ == '__main__':
     unittest.main()
