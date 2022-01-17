@@ -9,65 +9,60 @@
 
 ## Speed
 
-Comparison of `scipy.stats.fisher_exact([[a, b], [c, d]], *)` and `fisher.test1*(a, b, c, d)`. See `benchmark.py`.
+Comparison of `scipy.stats.fisher_exact`, `fast_fisher.fast_fisher_python` and `fast_fisher.fast_fisher_compiled`. See `benchmark.py`.
 
-|      a |      b |      c |      d |    test type |     scipy |    fisher |
-|-------:|-------:|-------:|-------:|-------------:|----------:|----------:|
-|      8 |      2 |      1 |      5 |  left-tailed |    150 us |      3 us |
-|      8 |      2 |      1 |      5 | right-tailed |    150 us |      3 us |
-|      8 |      2 |      1 |      5 |   two-tailed |    938 us |      6 us |
-|    100 |   1000 |  10000 | 100000 |  left-tailed |    155 us |     55 us |
-|    100 |   1000 |  10000 | 100000 | right-tailed |    243 us |     75 us |
-|    100 |   1000 |  10000 | 100000 |   two-tailed |    187 us |    128 us |
-|  10000 |    100 |   1000 | 100000 |  left-tailed |    950 us |      8 us |
-|  10000 |    100 |   1000 | 100000 | right-tailed |    159 us |      6 us |
-|  10000 |    100 |   1000 | 100000 |   two-tailed |  71292 us |    680 us |
-|  10000 |  10000 |  10000 |  10000 |  left-tailed |    950 us |    369 us |
-|  10000 |  10000 |  10000 |  10000 | right-tailed |    955 us |    376 us |
-|  10000 |  10000 |  10000 |  10000 |   two-tailed |    193 us |    732 us |
+|      a |      b |      c |      d |    test type |     scipy |  f_python | f_compiled |
+|-------:|-------:|-------:|-------:|-------------:|----------:|----------:|-----------:|
+|      8 |      2 |      1 |      5 |  left-tailed |    130 us |      3 us |       1 us |
+|      8 |      2 |      1 |      5 | right-tailed |    134 us |      3 us |       0 us |
+|      8 |      2 |      1 |      5 |   two-tailed |    884 us |      6 us |       1 us |
+|    100 |   1000 |  10000 | 100000 |  left-tailed |    153 us |     57 us |       5 us |
+|    100 |   1000 |  10000 | 100000 | right-tailed |    218 us |     73 us |       6 us |
+|    100 |   1000 |  10000 | 100000 |   two-tailed |    174 us |    130 us |      10 us |
+|  10000 |    100 |   1000 | 100000 |  left-tailed |    955 us |      8 us |       1 us |
+|  10000 |    100 |   1000 | 100000 | right-tailed |    135 us |      7 us |       1 us |
+|  10000 |    100 |   1000 | 100000 |   two-tailed |  62821 us |    753 us |      53 us |
+|  10000 |  10000 |  10000 |  10000 |  left-tailed |    900 us |    323 us |      26 us |
+|  10000 |  10000 |  10000 |  10000 | right-tailed |    912 us |    329 us |      27 us |
+|  10000 |  10000 |  10000 |  10000 |   two-tailed |    172 us |    679 us |      53 us |
+
 
 ## Precision
 
 ```python
->>> from scipy import stats
->>> -log10(stats.fisher_exact([[100, 1], [10, 1000]])[1])
-128.93472935802367
->>> -log10(stats.fisher_exact([[100, 1], [10, 10000]])[1])
-226.6210481678513
->>> -log10(stats.fisher_exact([[100, 1], [10, 100000]])[1])
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-ValueError: math domain error
+from numpy import log10, isinf
+from scipy.stats import fisher_exact
+from fast_fisher import fast_fisher
+
+scipy_fisher = lambda t: fisher_exact([[t[0], t[1]], [t[2], t[3]]])[1]
+
+print(f"{'contingency table':<30} {'fast pvalue':<20} {'scipy pvalue'}")
+for exponent in range(0, 16):
+    table = (100, 1, 10, 10 ** exponent)
+    fast_mlog = fast_fisher.mlog10Test1t(*table)
+    scipy_mlog = -log10(scipy_fisher(table))
+
+    if isinf(scipy_mlog):
+        scipy_mlog = 'failed to compute'
+
+    print(f"{str(table):<30} {fast_mlog:<20} {scipy_mlog}")
 ```
 
-```python
->>> import fisher
->>> fisher.mlog10Test1t(100, 1, 10, 1000)
-128.93472935802276
->>> fisher.mlog10Test1t(100, 1, 10, 10000)
-226.62104816784367
->>> fisher.mlog10Test1t(100, 1, 10, 100000)
-326.3812661050023
->>> fisher.mlog10Test1t(100, 1, 10, 1000000)
-426.3571991266363
->>> fisher.mlog10Test1t(100, 1, 10, 10000000)
-526.3547915418933
->>> fisher.mlog10Test1t(100, 1, 10, 100000000)
-626.354550887692
->>> fisher.mlog10Test1t(100, 1, 10, 1000000000)
-726.3545256659792
->>> fisher.mlog10Test1t(100, 1, 10, 10000000000)
-826.3545146294285
->>> fisher.mlog10Test1t(100, 1, 10, 100000000000)
-926.354583114538
->>> fisher.mlog10Test1t(100, 1, 10, 1000000000000)
-1026.3549166719595
->>> fisher.mlog10Test1t(100, 1, 10, 10000000000000)
-1126.3970256263215
->>> fisher.mlog10Test1t(100, 1, 10, 100000000000000)
-1226.447616894783
->>> fisher.mlog10Test1t(100, 1, 10, 1000000000000000)
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-OverflowError: the grand total of contingency table is too large
+```text
+contingency table              fast pvalue          scipy pvalue
+(100, 1, 10, 1)                0.7268124553699258   0.7268124553698625
+(100, 1, 10, 10)               7.831294376070296    7.831294376070258
+(100, 1, 10, 100)              46.49556750272154    46.4955675027216
+(100, 1, 10, 1000)             128.93472935802276   128.93472935802373
+(100, 1, 10, 10000)            226.62104816785      226.62104816785057
+(100, 1, 10, 100000)           326.3812661048001    failed to compute
+(100, 1, 10, 1000000)          426.35719912501844   failed to compute
+(100, 1, 10, 10000000)         526.3547915160074    failed to compute
+(100, 1, 10, 100000000)        626.3545507841483    failed to compute
+(100, 1, 10, 1000000000)       726.3545273226812    failed to compute
+(100, 1, 10, 10000000000)      826.3545146294285    failed to compute
+(100, 1, 10, 100000000000)     926.354158998833     failed to compute
+(100, 1, 10, 1000000000000)    1026.3583095975994   failed to compute
+(100, 1, 10, 10000000000000)   1126.3427388160835   failed to compute
+(100, 1, 10, 100000000000000)  1226.447616894783    failed to compute
 ```

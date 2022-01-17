@@ -1,0 +1,6 @@
+.idea/
+build/
+fast_fisher.egg-info/
+fast_fisher/__pycache__/
+fast_fisher_numba.egg-info/
+fast_fisher/fast_fisher_compiled.cpython*
