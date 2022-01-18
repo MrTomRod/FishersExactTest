@@ -48,7 +48,7 @@ from fast_fisher import fast_fisher
 
 scipy_fisher = lambda t: fisher_exact([[t[0], t[1]], [t[2], t[3]]])[1]
 
-print(f"{'contingency table':<30} {'fast pvalue':<20} {'scipy pvalue'}")
+print(f"{'contingency table':<30} {'fast -log10(pvalue)':<21} {'scipy -log10(pvalue)'}")
 for exponent in range(0, 16):
     table = (100, 1, 10, 10 ** exponent)
     fast_mlog = fast_fisher.mlog10Test1t(*table)
@@ -57,28 +57,30 @@ for exponent in range(0, 16):
     if isinf(scipy_mlog):
         scipy_mlog = 'failed to compute'
 
-    print(f"{str(table):<30} {fast_mlog:<20} {scipy_mlog}")
+    print(f"{str(table):<30} {fast_mlog:<21} {scipy_mlog}")
 ```
 
 ```text
-contingency table              fast pvalue          scipy pvalue
-(100, 1, 10, 1)                0.7268124553699258   0.7268124553698625
-(100, 1, 10, 10)               7.831294376070296    7.831294376070258
-(100, 1, 10, 100)              46.49556750272154    46.4955675027216
-(100, 1, 10, 1000)             128.93472935802276   128.93472935802373
-(100, 1, 10, 10000)            226.62104816785      226.62104816785057
-(100, 1, 10, 100000)           326.3812661048001    failed to compute
-(100, 1, 10, 1000000)          426.35719912501844   failed to compute
-(100, 1, 10, 10000000)         526.3547915160074    failed to compute
-(100, 1, 10, 100000000)        626.3545507841483    failed to compute
-(100, 1, 10, 1000000000)       726.3545273226812    failed to compute
-(100, 1, 10, 10000000000)      826.3545146294285    failed to compute
-(100, 1, 10, 100000000000)     926.354158998833     failed to compute
-(100, 1, 10, 1000000000000)    1026.3583095975994   failed to compute
-(100, 1, 10, 10000000000000)   1126.3427388160835   failed to compute
-(100, 1, 10, 100000000000000)  1226.447616894783    failed to compute
+contingency table              fast -log10(pvalue)   scipy -log10(pvalue)
+(100, 1, 10, 1)                0.7268124553699258    0.7268124553698625
+(100, 1, 10, 10)               7.831294376070296     7.831294376070258
+(100, 1, 10, 100)              46.49556750272154     46.4955675027216
+(100, 1, 10, 1000)             128.93472935802276    128.93472935802373
+(100, 1, 10, 10000)            226.62104816785       226.62104816785057
+(100, 1, 10, 100000)           326.3812661048001     failed to compute
+(100, 1, 10, 1000000)          426.35719912501844    failed to compute
+(100, 1, 10, 10000000)         526.3547915160074     failed to compute
+(100, 1, 10, 100000000)        626.3545507841483     failed to compute
+(100, 1, 10, 1000000000)       726.3545273226812     failed to compute
+(100, 1, 10, 10000000000)      826.3545146294285     failed to compute
+(100, 1, 10, 100000000000)     926.354158998833      failed to compute
+(100, 1, 10, 1000000000000)    1026.3583095975994    failed to compute
+(100, 1, 10, 10000000000000)   1126.3427388160835    failed to compute
+(100, 1, 10, 100000000000000)  1226.447616894783     failed to compute
 Traceback (most recent call last):
-  File "<stdin>", line 3, in <module>
-  File "/tmp/pip-req-build-k925rs0z/fast_fisher/fast_fisher_numba.py", line 244, in mlnTest2t
+  File "/usr/lib64/python3.10/code.py", line 90, in runcode
+    exec(code, self.locals)
+  File "<input>", line 10, in <module>
+  File "/tmp/pip-req-build-usaxopn1/fast_fisher/fast_fisher_numba.py", line 244, in mlnTest2t
 OverflowError: the grand total of contingency table is too large
 ```
