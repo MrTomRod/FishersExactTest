@@ -1,6 +1,8 @@
 .idea/
 build/
+dist/
 fast_fisher.egg-info/
 fast_fisher/__pycache__/
 fast_fisher_numba.egg-info/
 fast_fisher/fast_fisher_compiled.cpython*
+how_to_upload.md

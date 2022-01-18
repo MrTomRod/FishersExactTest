@@ -2,6 +2,7 @@
 import pathlib
 from setuptools import setup
 
+from fast_fisher import __version__
 from fast_fisher.fast_fisher_numba import cc
 
 # The directory containing this file
@@ -16,7 +17,7 @@ if __name__ == "__main__":
     # This call to setup() does all the work
     setup(
         name='fast_fisher',
-        version='0.0.1',
+        version=__version__,
         description="Calculate Fisher's exact test very quickly.",
         long_description=README,
         long_description_content_type='text/markdown',
