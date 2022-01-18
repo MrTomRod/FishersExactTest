@@ -8,7 +8,11 @@ Nevertheless, it makes a big difference speed-wise!
 ## Installation
 
 ```bash
-pip install git+https://github.com/MrTomRod/FishersExactTest
+pip install git+https://github.com/MrTomRod/fast-fisher
+
+# or
+
+pip install numba fast-fisher  # from https://pypi.org/project/fast-fisher/
 ```
 
 ## Functions
