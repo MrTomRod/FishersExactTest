@@ -2,20 +2,50 @@
 
 This is heavily based on the work of [painyeph](https://github.com/painyeph/FishersExactTest).
 
-I basically added numba compilation and easier installation.
-Nevertheless, it makes a big difference speed-wise!
+I basically added numba compilation and easier installation. Nevertheless, it makes a big difference speed-wise!
 
 ## Installation
 
 ```bash
-pip install git+https://github.com/MrTomRod/fast-fisher
+pip install numba git+https://github.com/MrTomRod/fast-fisher
 
 # or
 
 pip install numba fast-fisher  # from https://pypi.org/project/fast-fisher/
 ```
 
-## Functions
+## Usage
+
+**Recommended usage:**
+
+```python
+from fast_fisher import fast_fisher_exact, odds_ratio
+
+a, b, c, d = 15, 32, 25, 46
+
+pvalue = fast_fisher_exact(a, b, c, d, alternative='two-sided')
+odds = odds_ratio(a, b, c, d)
+```
+
+**Alternative usages:**
+
+`fast_fisher_exact_compatibility` has the same syntax as `scipy.stats.fisher_exact`.
+
+```python
+from math import isclose
+from scipy.stats import fisher_exact
+from fast_fisher import fast_fisher_exact_compatibility
+
+table = [[15, 32], [25, 46]]
+
+for alternative in ['two-sided', 'less', 'greater']:
+    odds_s, pval_s = fisher_exact(table, alternative)
+    odds_f, pval_f = fast_fisher_exact_compatibility(table, alternative)
+    assert odds_s == odds_f
+    assert isclose(pval_s, pval_f)  # not always true!
+```
+
+### Advanced Usage
 
 | test type    | p-value                                                | -log( p-value )                                              | -log10( p-value )                                                  |
 |--------------|--------------------------------------------------------|--------------------------------------------------------------|--------------------------------------------------------------------|

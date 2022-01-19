@@ -1,16 +1,8 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# Author: eph, Thomas Roder
-
+from math import log, exp, lgamma, nan, inf
+from numba import jit_module
 from numba.pycc import CC
 
 cc = CC('fast_fisher_compiled')
-
-from math import log, exp
-
-from math import lgamma
-
-from numba import njit, jit_module
 
 
 def _maxn():
@@ -290,6 +282,48 @@ def mlog10Test1t(a, b, c, d):
 @cc.export('mlog10Test2t', 'f8(i8, i8, i8, i8)')
 def mlog10Test2t(a, ab, ac, abcd):
     return mlnTest2t(a, ab, ac, abcd) / LN10
+
+
+@cc.export('fisher_exact', 'f8(i8, i8, i8, i8, unicode_type)')
+def fisher_exact(a: int, b: int, c: int, d: int, alternative: str) -> float:
+    """
+    Perform a Fisher exact test on a 2x2 contingency table.
+
+    :param a: row 1 col 1
+    :param b: row 1 col 2
+    :param c: row 2 col 1
+    :param d: row 2 col 2
+    :param alternative: {‘two-sided’, ‘less’, ‘greater’} (default: 'two-sided')
+    :return: pvalue
+    """
+    if alternative == 'two-sided':
+        return test1t(a, b, c, d)
+    elif alternative == 'less':
+        return test1l(a, b, c, d)
+    elif alternative == 'greater':
+        return test1r(a, b, c, d)
+    else:
+        raise ValueError("`alternative` should be one of {'two-sided', 'less', 'greater'}")
+
+
+@cc.export('odds_ratio', 'f8(i8, i8, i8, i8)')
+def odds_ratio(a: int, b: int, c: int, d: int) -> float:
+    """
+    Calculate odds ratio of a contingency table.
+
+    :param a: row 1 col 1
+    :param b: row 1 col 2
+    :param c: row 2 col 1
+    :param d: row 2 col 2
+    :return: odds ratio (this is prior odds ratio and not a posterior estimate.)
+    """
+    if a + b == 0 or c + d == 0 or a + c == 0 or b + d == 0:
+        return nan
+
+    if not (c > 0 and b > 0):
+        return inf
+
+    return (a * d) / (c * b)
 
 
 jit_module(
