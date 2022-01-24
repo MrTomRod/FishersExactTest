@@ -1,21 +1,22 @@
-__version__ = '0.0.2'
+__version__ = '0.0.3'
+
+from logging import warning
 
 from . import fast_fisher_python
 
+# from . import fast_fisher_numba
+# from . import fast_fisher_compiled
+
 try:
-    # try to import compiled version
-    from . import fast_fisher_compiled
+    from . import fast_fisher_cython
 
-    fast_fisher = fast_fisher_compiled
+    fast_fisher = fast_fisher_cython
 except ImportError as e:
-    # import python version
-    from logging import warning
+    warning(f'Failed to import fast_fisher_cython: {str(e)}')
 
-    warning(f'Failed to import fast_fisher_compiled: {str(e)}')
     fast_fisher = fast_fisher_python
 
 odds_ratio = fast_fisher.odds_ratio
-
 
 def fast_fisher_exact(a: int, b: int, c: int, d: int, alternative: str = 'two-sided'):
     """
@@ -43,13 +44,7 @@ def fast_fisher_exact_compatibility(table: [[int, int], [int, int]], alternative
     :return: pvalue
     """
     (a, b), (c, d) = table
-    return odds_ratio(a, b, c, d), fast_fisher.fisher_exact(a, b, c, d, alternative)
+    return fast_fisher.odds_ratio(a, b, c, d), fast_fisher.fisher_exact(a, b, c, d, alternative)
 
 
-try:
-    from . import fast_fisher_numba
-except ImportError as e:
-    from logging import warning
 
-    warning(f'Failed to import fast_fisher_numba: {str(e)}')
-    pass

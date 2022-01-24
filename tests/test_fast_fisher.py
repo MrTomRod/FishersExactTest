@@ -23,9 +23,10 @@ class TestFisher(TestCase):
             scipy_r = scipy_fisher_exact(a, b, c, d, 'greater')
             scipy_t = scipy_fisher_exact(a, b, c, d, 'two-sided')
 
-            self._test(fast_fisher_python.test1, 'fast_fisher_python', (a, b, c, d), scipy_l, scipy_r, scipy_t)
-            self._test(fast_fisher_numba.test1, 'fast_fisher_numba', (a, b, c, d), scipy_l, scipy_r, scipy_t)
-            self._test(fast_fisher_compiled.test1, 'fast_fisher_compiled', (a, b, c, d), scipy_l, scipy_r, scipy_t)
+            # self._test(fast_fisher_python.test1, 'fast_fisher_python', (a, b, c, d), scipy_l, scipy_r, scipy_t)
+            # self._test(fast_fisher_numba.test1, 'fast_fisher_numba', (a, b, c, d), scipy_l, scipy_r, scipy_t)
+            # self._test(fast_fisher_compiled.test1, 'fast_fisher_compiled', (a, b, c, d), scipy_l, scipy_r, scipy_t)
+            self._test(fast_fisher_cython.test1, 'fast_fisher_compiled', (a, b, c, d), scipy_l, scipy_r, scipy_t)
 
     def _test_with_scipy_n(self, samples, range_max, alternative):
         n_fails = 0
@@ -41,7 +42,7 @@ class TestFisher(TestCase):
                 n_sig += 1
 
             if not isclose(fast_p, scipy_p):
-                print(f'{table=} {fast_p < scipy_p=} {min(fast_p, scipy_p)=}')
+                # print(f'{table=} {fast_p < scipy_p=} {min(fast_p, scipy_p)=}')
                 n_fails += 1
                 not_identical_min_pval = min(not_identical_min_pval, fast_p, scipy_p)
 
@@ -52,23 +53,23 @@ class TestFisher(TestCase):
         }
         return summary
 
-    def test_with_scipy_n(self, samples=10000, alternative='two-sided'):
+    def test_with_scipy_n(self, samples=1000, alternative='two-sided'):
         """
         The bigger the numbers in the contingency table, the lower the disagreement between
         scipy and fast-fisher.
 
-        fails = {
-            10:  {'fail_ratio': 0.0149, 'significant_ratio': 0.165,  'not_identical_min_pval': 0.002798285306025277},
-            20:  {'fail_ratio': 0.0077, 'significant_ratio': 0.3391, 'not_identical_min_pval': 2.545416595607132e-07},
-            40:  {'fail_ratio': 0.0043, 'significant_ratio': 0.5134, 'not_identical_min_pval': 4.635620265052135e-07},
-            80:  {'fail_ratio': 0.0017, 'significant_ratio': 0.6488, 'not_identical_min_pval': 4.000882905422895e-06},
-            160: {'fail_ratio': 0.0014, 'significant_ratio': 0.754,  'not_identical_min_pval': 1.0266889586481655e-06}
-        }
+        range_max=10:  {'fail_ratio': 0.013, 'significant_ratio': 0.163, 'not_identical_min_pval': 0.0054179566563467355}
+        range_max=20:  {'fail_ratio': 0.006, 'significant_ratio': 0.353, 'not_identical_min_pval': 4.548517044597358e-06}
+        range_max=40:  {'fail_ratio': 0.005, 'significant_ratio': 0.507, 'not_identical_min_pval': 4.496376367645278e-08}
+        range_max=80:  {'fail_ratio': 0.003, 'significant_ratio': 0.632, 'not_identical_min_pval': 0.4550352573371027}
+        range_max=160: {'fail_ratio': 0.001, 'significant_ratio': 0.749, 'not_identical_min_pval': 1}
         """
-        fails = {}
+        all_fails = {}
         for range_max in [10, 20, 40, 80, 160]:
-            fails[range_max] = self._test_with_scipy_n(samples, range_max, alternative)
-        print(fails)
+            fails = self._test_with_scipy_n(samples, range_max, alternative)
+            all_fails[range_max] = fails
+            print(f'{range_max=}: {fails}')
+        print(all_fails)
 
     def test_exception(self):
         """
@@ -89,7 +90,8 @@ class TestFisher(TestCase):
             a, b, c, d = table
             scipy_t = scipy_fisher_exact(a, b, c, d, 'two-sided')
             # fast_t = fast_fisher_python.test1t(a, b, c, d)
-            fast_t = fast_fisher_compiled.test1t(a, b, c, d)
+            # fast_t = fast_fisher_compiled.test1t(a, b, c, d)
+            fast_t = fast_fisher_cython.test1t(a, b, c, d)
 
             # For this contingency table, scipy and this implementation do not agree!
             try:

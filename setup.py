@@ -1,9 +1,12 @@
 # based on https://realpython.com/pypi-publish-python-package
 import pathlib
 from setuptools import setup
+from Cython.Build import cythonize
+import Cython.Compiler.Options as CO
 
 from fast_fisher import __version__
-from fast_fisher.fast_fisher_numba import cc
+
+CO.extra_compile_args = ['-O3', '-ffast-math', '-march=native']
 
 # The directory containing this file
 HERE = pathlib.Path(__file__).parent
@@ -11,9 +14,7 @@ HERE = pathlib.Path(__file__).parent
 # The text of the README file
 README = (HERE / 'README.md').read_text()
 
-if __name__ == "__main__":
-    cc.compile()
-
+if __name__ == '__main__':
     # This call to setup() does all the work
     setup(
         name='fast_fisher',
@@ -31,6 +32,6 @@ if __name__ == "__main__":
             'Programming Language :: Python :: 3.10',
         ],
         packages=['fast_fisher'],
-        install_requires=['numba'],
-        ext_modules=[cc.distutils_extension()],
+        install_requires=[],  # development: numba
+        ext_modules=cythonize('fast_fisher/fast_fisher_cython.pyx', language_level=3)
     )

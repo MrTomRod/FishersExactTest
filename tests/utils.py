@@ -11,7 +11,7 @@ import pandas as pd
 
 from scipy.stats import fisher_exact
 
-from fast_fisher import fast_fisher_exact, fast_fisher_exact_compatibility, fast_fisher_python, fast_fisher_numba
+from fast_fisher import fast_fisher_exact, fast_fisher_exact_compatibility, fast_fisher_python, fast_fisher_numba, fast_fisher_cython
 
 try:
     from fast_fisher import fast_fisher_compiled

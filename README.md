@@ -7,11 +7,11 @@ I basically added numba compilation and easier installation. Nevertheless, it ma
 ## Installation
 
 ```bash
-pip install numba git+https://github.com/MrTomRod/fast-fisher
+pip install git+https://github.com/MrTomRod/fast-fisher
 
 # or
 
-pip install numba fast-fisher  # from https://pypi.org/project/fast-fisher/
+pip install fast-fisher  # from https://pypi.org/project/fast-fisher/
 ```
 
 ## Usage
@@ -56,22 +56,35 @@ for alternative in ['two-sided', 'less', 'greater']:
 
 ## Speed
 
-Comparison of `scipy.stats.fisher_exact`, `fast_fisher.fast_fisher_python` and `fast_fisher.fast_fisher_compiled`. See `benchmark.py`.
+Comparison of 
+- `scipy.stats.fisher_exact` ([scipy docs](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.fisher_exact.html))
+- `fast_fisher.fast_fisher_python` (this library)
+- `fast_fisher.fast_fisher_compiled` (this library, compiled using numba)
+- `fast_fisher.fast_fisher_cpython` (this library, compiled using cython)
+- `fisher.pvalue` (from [brentp/fishers_exact_test](https://github.com/brentp/fishers_exact_test))
 
-|      a |      b |      c |      d |    test type |     scipy |  f_python | f_compiled |
-|-------:|-------:|-------:|-------:|-------------:|----------:|----------:|-----------:|
-|      8 |      2 |      1 |      5 |  left-tailed |    130 us |      3 us |       1 us |
-|      8 |      2 |      1 |      5 | right-tailed |    134 us |      3 us |       0 us |
-|      8 |      2 |      1 |      5 |   two-tailed |    884 us |      6 us |       1 us |
-|    100 |   1000 |  10000 | 100000 |  left-tailed |    153 us |     57 us |       5 us |
-|    100 |   1000 |  10000 | 100000 | right-tailed |    218 us |     73 us |       6 us |
-|    100 |   1000 |  10000 | 100000 |   two-tailed |    174 us |    130 us |      10 us |
-|  10000 |    100 |   1000 | 100000 |  left-tailed |    955 us |      8 us |       1 us |
-|  10000 |    100 |   1000 | 100000 | right-tailed |    135 us |      7 us |       1 us |
-|  10000 |    100 |   1000 | 100000 |   two-tailed |  62821 us |    753 us |      53 us |
-|  10000 |  10000 |  10000 |  10000 |  left-tailed |    900 us |    323 us |      26 us |
-|  10000 |  10000 |  10000 |  10000 | right-tailed |    912 us |    329 us |      27 us |
-|  10000 |  10000 |  10000 |  10000 |   two-tailed |    172 us |    679 us |      53 us |
+See `benchmark.py`.
+
+|      a |      b |      c |      d |    test type |     scipy |  f_python | f_compiled |   f_cython |     brentp |
+|-------:|-------:|-------:|-------:|-------------:|----------:|----------:|-----------:|-----------:|-----------:|
+|      8 |      2 |      1 |      5 |  left-tailed |    130 us |      3 us |       0 us |       0 us |       0 us |
+|      8 |      2 |      1 |      5 | right-tailed |    124 us |      3 us |       0 us |       0 us |       0 us |
+|      8 |      2 |      1 |      5 |   two-tailed |    895 us |      6 us |       1 us |       1 us |       0 us |
+|     10 |    100 |     10 |    100 |  left-tailed |    143 us |     10 us |       1 us |       1 us |       0 us |
+|     10 |    100 |     10 |    100 | right-tailed |    147 us |     12 us |       1 us |       1 us |       1 us |
+|     10 |    100 |     10 |    100 |   two-tailed |    198 us |     18 us |       2 us |       2 us |       1 us |
+|     10 |   1000 |  10000 | 100000 |  left-tailed |    139 us |     11 us |       1 us |       1 us |     110 us |
+|    100 |   1000 |  10000 | 100000 | right-tailed |    238 us |     78 us |       6 us |       6 us |     142 us |
+|    100 |   1000 |  10000 | 100000 |   two-tailed |    186 us |    137 us |      11 us |      11 us |     136 us |
+|  10000 |    100 |   1000 | 100000 |  left-tailed |   1010 us |      8 us |       1 us |       1 us |    1486 us |
+|  10000 |    100 |   1000 | 100000 | right-tailed |    150 us |      6 us |       1 us |       1 us |    1495 us |
+|  10000 |    100 |   1000 | 100000 |   two-tailed |  63192 us |    768 us |      55 us |      58 us |    1459 us |
+|  10000 |  10000 |  10000 |  10000 |  left-tailed |    967 us |    338 us |      27 us |      28 us |    2808 us |
+|  10000 |  10000 |  10000 |  10000 | right-tailed |    969 us |    344 us |      27 us |      28 us |    2820 us |
+|  10000 |  10000 |  10000 |  10000 |   two-tailed |    177 us |    689 us |      54 us |      61 us |    2952 us |
+
+While numba seems be marginally faster than the cython, cython is a much better build dependency. Therefore, by default, 
+only the cython version is installed.
 
 ## Precision
 
@@ -111,10 +124,16 @@ contingency table              fast -log10(pvalue)   scipy -log10(pvalue)
 (100, 1, 10, 1000000000000)    1026.3583095975994    failed to compute
 (100, 1, 10, 10000000000000)   1126.3427388160835    failed to compute
 (100, 1, 10, 100000000000000)  1226.447616894783     failed to compute
+<input>:11: RuntimeWarning: divide by zero encountered in log10
 Traceback (most recent call last):
   File "/usr/lib64/python3.10/code.py", line 90, in runcode
     exec(code, self.locals)
   File "<input>", line 10, in <module>
-  File "/tmp/pip-req-build-usaxopn1/fast_fisher/fast_fisher_numba.py", line 244, in mlnTest2t
+  File "fast_fisher/fast_fisher_cython.pyx", line 236, in fast_fisher.fast_fisher_cython.mlog10Test1t
+    cpdef inline double mlog10Test1t(long long a, long long b, long long c, long long d) except *:
+  File "fast_fisher/fast_fisher_cython.pyx", line 237, in fast_fisher.fast_fisher_cython.mlog10Test1t
+    return mlnTest2t(a, a + b, a + c, a + b + c + d) / LN10
+  File "fast_fisher/fast_fisher_cython.pyx", line 195, in fast_fisher.fast_fisher_cython.mlnTest2t
+    raise OverflowError('the grand total of contingency table is too large')
 OverflowError: the grand total of contingency table is too large
 ```

@@ -5,4 +5,6 @@ fast_fisher.egg-info/
 fast_fisher/__pycache__/
 fast_fisher_numba.egg-info/
 fast_fisher/fast_fisher_compiled.cpython*
+fast_fisher/fast_fisher_cython.c*
+fast_fisher/fast_fisher_cython.h*
 how_to_upload.md
