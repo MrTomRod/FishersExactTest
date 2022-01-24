@@ -7,10 +7,15 @@ I basically added numba compilation and easier installation. Nevertheless, it ma
 ## Installation
 
 ```bash
+# First, python-dev / python-devel appears to be required.
+# On Fedora:
+sudo dnf install python3-devel
+# On Debian/Ubuntu:
+sudo apt-get install python3-dev
+
+# Then, install the package using pip:
 pip install git+https://github.com/MrTomRod/fast-fisher
-
 # or
-
 pip install fast-fisher  # from https://pypi.org/project/fast-fisher/
 ```
 
@@ -56,7 +61,8 @@ for alternative in ['two-sided', 'less', 'greater']:
 
 ## Speed
 
-Comparison of 
+Comparison of
+
 - `scipy.stats.fisher_exact` ([scipy docs](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.fisher_exact.html))
 - `fast_fisher.fast_fisher_python` (this library)
 - `fast_fisher.fast_fisher_compiled` (this library, compiled using numba)
@@ -83,8 +89,8 @@ See `benchmark.py`.
 |  10000 |  10000 |  10000 |  10000 | right-tailed |    969 us |    344 us |      27 us |      28 us |    2820 us |
 |  10000 |  10000 |  10000 |  10000 |   two-tailed |    177 us |    689 us |      54 us |      61 us |    2952 us |
 
-While numba seems be marginally faster than the cython, cython is a much better build dependency. Therefore, by default, 
-only the cython version is installed.
+While numba seems be marginally faster than the cython, cython is a much better build dependency. Therefore, by default, only the cython version is
+installed.
 
 ## Precision
 
